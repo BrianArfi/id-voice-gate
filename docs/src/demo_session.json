@@ -1,0 +1,26 @@
+[
+ {
+  "cmd": "cat examples/draft-bad.md",
+  "out": "Notulen, daftar tugas, dan laporan mingguan, dikerjain AI.\nLo tinggal review.\n\nRekam meeting, upload, kirim.\nTiga langkah, udah.",
+  "typed": true,
+  "hold": 1400
+ },
+ {
+  "cmd": "idgate check --file examples/draft-bad.md",
+  "out": "FAIL  lint block: calque_dikerjain_ai, punch_x_udah (judge: natural=False score=2)\n  [block] punch_x_udah  line 5: Tiga langkah, udah.\n          fix: Kalimat utuh: 'Cuma tiga langkah.' atau 'Tiga langkah, terus jalan sendiri.'\n  [block] calque_dikerjain_ai  line 1: dikerjain AI\n          fix: Sebut pelakunya di depan: 'AI yang nyusun', 'biar AI yang beresin'.\n  judge (claude-cli sonnet, 8.96s): natural=False score=2\n    - \"Notulen, daftar tugas, dan laporan mingguan, dikerjain AI.\": Pasif terjemahan 'done by AI', pelaku hilang (panduan 6) -> AI yang nyusun notulen, daftar tugas, dan laporan mingguan.\n    - \"Tiga langkah, udah.\": Punchline iklan terjemahan 'Three steps, done' (panduan 6) -> Cuma tiga langkah.\n  suggested rewrite:\n    AI yang nyusun notulen, daftar tugas, dan laporan mingguan.\n    Lo tinggal review.\n    \n    Rekam meeting, upload, kirim.\n    Cuma tiga langkah.\nexit 1",
+  "typed": true,
+  "hold": 3400
+ },
+ {
+  "cmd": "idgate gate --file examples/draft-bad.md",
+  "out": "AI yang nyusun notulen, daftar tugas, dan laporan mingguan.\nLo tinggal review.\n\nRekam meeting, upload, kirim.\nCuma tiga langkah.\n[idgate] PASS, rounds=1, changed=True, natural\nexit 0",
+  "typed": true,
+  "hold": 3000
+ },
+ {
+  "cmd": "idgate check --file examples/draft-good.md",
+  "out": "PASS  natural\n  judge (claude-cli sonnet, 7.77s): natural=True score=5\nexit 0",
+  "typed": true,
+  "hold": 3200
+ }
+]

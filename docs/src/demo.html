@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* Same terminal window as voiceprint's and gdoc-surgical's demo GIFs. */
+  :root { --paper:#F1F3EE; --field:#0D453E; --ink:#072B27; --signal:#C8F751; --red:#C2412D; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 800px; height: 450px; background: var(--paper); overflow: hidden; }
+  body { padding: 14px 18px 20px 14px; font-family: 'JetBrains Mono', Consolas, monospace; }
+  .win { height: 416px; background: var(--ink); border-radius: 12px; border: 3px solid var(--ink);
+         box-shadow: 7px 7px 0 var(--field); display: flex; flex-direction: column; overflow: hidden; }
+  .chrome { height: 32px; background: #0A3833; display: flex; align-items: center; padding: 0 14px; gap: 8px; flex-shrink: 0; }
+  .chrome i { width: 12px; height: 12px; border-radius: 50%; background: #2C5C55; display: block; }
+  .chrome span { margin-left: 12px; color: #9DB7AF; font-size: 13px; }
+  .chrome b { margin-left: auto; font-family: 'Archivo', sans-serif; font-size: 13px; color: var(--ink);
+              background: var(--signal); padding: 3px 9px; border-radius: 5px; }
+  .screen { flex: 1; padding: 10px 12px; color: #DDE7E2; font-size: 13.5px; line-height: 1.38;
+            display: flex; flex-direction: column; justify-content: flex-start; overflow: hidden; letter-spacing: -0.2px; }
+  .l { white-space: pre-wrap; word-break: break-word; min-height: 1.38em; flex-shrink: 0; }
+  .prompt { color: var(--signal); }
+  .cmd { color: #fff; }
+  .info { color: #9DB7AF; }
+  .hit { color: #FFB4A6; }
+  .fail { background: var(--red); color: #fff; font-weight: 700; padding: 0 4px; border-radius: 3px; }
+  .pass { background: var(--signal); color: var(--ink); font-weight: 700; padding: 0 4px; border-radius: 3px; }
+  .cursor { display: inline-block; width: 8px; height: 16px; background: var(--signal); vertical-align: -3px; }
+</style>
+</head>
+<body>
+<div class="win">
+  <div class="chrome"><i></i><i></i><i></i><span>idgate, judge: claude CLI (sonnet)</span><b>real output</b></div>
+  <div class="screen" id="s"></div>
+</div>
+<script>
+// Real output captured by docs/src/demo.py, see demo_session.json.
+// Each step: {cmd, out, typed (animate typing or show at once), hold (ms after the output)}.
+const SESSION = __SESSION__;
+const CHAR_MS = 22, PAUSE_AFTER_CMD = 300, LINE_MS = 90;
+
+function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+function deco(line) {
+  const h = esc(line);
+  if (line.startsWith('FAIL')) return '<span class="fail">FAIL</span>' + h.slice(4);
+  if (line.startsWith('PASS')) return '<span class="pass">PASS</span>' + h.slice(4);
+  if (line.startsWith('[idgate] PASS')) return '<span class="info">[idgate] </span><span class="pass">PASS</span><span class="info">' + h.slice(13) + '</span>';
+  if (line.startsWith('[idgate] FAIL')) return '<span class="info">[idgate] </span><span class="fail">FAIL</span><span class="info">' + h.slice(13) + '</span>';
+  if (line.startsWith('  [block]')) return '<span class="hit">' + h + '</span>';
+  if (line.startsWith('exit') || line.startsWith('    ') || line.startsWith('  ')) return '<span class="info">' + h + '</span>';
+  return h;
+}
+const events = []; let t = 0;
+SESSION.forEach((s, i) => {
+  const lines = s.out.split('\n');
+  if (!s.typed) {
+    events.push({t, step:i, typed:s.cmd.length, lines:lines.length});
+    t += s.hold;
+    return;
+  }
+  for (let c = 0; c <= s.cmd.length; c++) { events.push({t, step:i, typed:c, lines:0}); t += CHAR_MS; }
+  t += PAUSE_AFTER_CMD;
+  for (let k = 1; k <= lines.length; k++) { events.push({t, step:i, typed:s.cmd.length, lines:k}); t += LINE_MS; }
+  t += s.hold;
+});
+window.TOTAL_MS = t;
+
+window.renderAt = function(ms) {
+  let ev = events[0];
+  for (const e of events) { if (e.t <= ms) ev = e; else break; }
+  const out = [];
+  for (let i = 0; i <= ev.step; i++) {
+    const s = SESSION[i];
+    const done = i < ev.step;
+    const typed = done ? s.cmd.length : ev.typed;
+    const showCursor = !done && ev.lines === 0;
+    if (i > 0) out.push('<div class="l"></div>');
+    out.push('<div class="l"><span class="prompt">$ </span><span class="cmd">' + esc(s.cmd.slice(0, typed)) + '</span>' + (showCursor ? '<span class="cursor"></span>' : '') + '</div>');
+    const lines = s.out.split('\n');
+    const n = done ? lines.length : ev.lines;
+    for (let k = 0; k < n; k++) out.push('<div class="l">' + deco(lines[k]) + '</div>');
+  }
+  const last = SESSION.length - 1;
+  if (ev.step === last && ev.lines === SESSION[last].out.split('\n').length)
+    out.push('<div class="l"><span class="prompt">$ </span><span class="cursor"></span></div>');
+  const el = document.getElementById('s');
+  el.innerHTML = out.join('');
+  while (el.scrollHeight > el.clientHeight && el.firstChild) el.removeChild(el.firstChild);
+};
+</script>
+</body>
+</html>

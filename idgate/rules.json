@@ -1,0 +1,282 @@
+{
+  "_comment": "Deterministic rules for id-voice-gate. Each one comes from a section of the style guide (guides/jakarta-casual.md). Python regex, matched PER LINE (^ and $ are the start and end of a line). scope: heading (a markdown '#' line, a line that is entirely **bold**, or the whole text when kind=heading), prose (every other line), any (both). severity: block (fail) or warn (a hint for the judge), or a dict per scope. requires: casual = only checked when the text uses gw/lo. Write em-dash and en-dash as \\u2014 and \\u2013, never as literal characters. See docs/rules.md before adding a rule.",
+  "version": 1,
+  "flags_note": "flags: i = ignorecase",
+  "rules": [
+    {
+      "id": "dash_em_en",
+      "pattern": "[\\u2014\\u2013]",
+      "scope": "any",
+      "severity": "block",
+      "why": "Em-dash dan en-dash dilarang (panduan 7).",
+      "fix": "Ganti pakai koma, titik, atau kalimat baru.",
+      "example_bad": "PHK memang bisa menakutkan \\u2014 perubahan drastis.",
+      "example_good": "Kena PHK itu nakutin. Kerjaan lo berubah total."
+    },
+    {
+      "id": "dash_double",
+      "pattern": "(?:^|\\s)--(?=\\s|$)",
+      "scope": "any",
+      "severity": "block",
+      "why": "' -- ' itu em-dash versi ketik (panduan 7).",
+      "fix": "Ganti pakai titik atau kalimat baru.",
+      "example_bad": "sekitar 3 hari lagi -- satu sesi aja cukup",
+      "example_good": "sekitar 3 hari lagi. Satu sesi aja cukup."
+    },
+    {
+      "id": "punch_x_udah",
+      "pattern": "^[^\\n]{1,40}?,\\s*(udah|beres|kelar|selesai|done)\\s*[.!]\\s*$",
+      "flags": "i",
+      "scope": "any",
+      "severity": "block",
+      "why": "Punchline iklan terjemahan 'Three steps, done' (panduan 6).",
+      "fix": "Kalimat utuh: 'Cuma tiga langkah.' atau 'Tiga langkah, terus jalan sendiri.'",
+      "example_bad": "Tiga langkah, udah.",
+      "example_good": "Cuma tiga langkah."
+    },
+    {
+      "id": "punch_beres_alone",
+      "pattern": "(?:^|[.!?]\\s+)(Beres|Udah|Kelar|Selesai|Done)[.!]\\s*$",
+      "scope": "any",
+      "severity": "block",
+      "why": "Fragmen 'X. Beres.' itu nada iklan SaaS Inggris (panduan 6).",
+      "fix": "Sambung jadi kalimat utuh: 'Upload file-nya, laporannya jadi sendiri.'",
+      "example_bad": "Upload file. Beres.",
+      "example_good": "Upload file-nya, laporannya jadi sendiri."
+    },
+    {
+      "id": "punch_gak_ribet",
+      "pattern": "(?:^|[.!?]\\s+)(gak|nggak|ga|tanpa|no)\\s+(ribet|repot|pusing)\\s*[.!]?\\s*$",
+      "flags": "i",
+      "scope": "any",
+      "severity": "block",
+      "why": "'Gak ribet.' = 'No hassle.' diterjemahin (panduan 6).",
+      "fix": "Sebut yang bikin gampang: 'Gak perlu install apa-apa.'",
+      "example_bad": "Gak ribet.",
+      "example_good": "Gak perlu install apa-apa."
+    },
+    {
+      "id": "punch_itu_aja",
+      "pattern": "(?:^|[.!?]\\s+)(itu aja|itu saja|that's it)\\s*[.!]\\s*$",
+      "flags": "i",
+      "scope": "any",
+      "severity": {
+        "heading": "block",
+        "prose": "warn"
+      },
+      "why": "'Itu aja.' = 'That's it.' (panduan 6). Di judul pasti iklan, di prose kadang wajar.",
+      "fix": "Hapus, atau tutup pakai satu langkah jelas.",
+      "example_bad": "Klik, tulis, kirim. Itu aja.",
+      "example_good": "Klik bagian yang mau dikomentarin, terus tulis di situ."
+    },
+    {
+      "id": "heading_slogan",
+      "pattern": "^(simpel|simple|gitu doang|sesimpel itu|semudah itu|gampang)\\s*[.!]?\\s*$",
+      "flags": "i",
+      "scope": "heading",
+      "severity": "block",
+      "why": "Judul satu kata 'Simpel.' atau 'Gitu doang.' itu slogan iklan (panduan 6).",
+      "fix": "Judul yang nyebut isinya: 'Cara pakainya', 'Cuma tiga langkah'.",
+      "example_bad": "Gitu doang.",
+      "example_good": "Cara pakainya"
+    },
+    {
+      "id": "kenalan_sama",
+      "pattern": "(?:^|[.!?]\\s+)kenalan\\s+(sama|dengan|ama)\\b",
+      "flags": "i",
+      "scope": "any",
+      "severity": {
+        "heading": "block",
+        "prose": "warn"
+      },
+      "why": "'Kenalan sama X' = 'Meet X' (panduan 6).",
+      "fix": "Langsung sebut isinya: 'Ini Notula, aplikasi notulen buat tim kecil.'",
+      "example_bad": "Kenalan sama Notula",
+      "example_good": "Begini cara kerja Notula"
+    },
+    {
+      "id": "bukan_cuma_tapi",
+      "pattern": "\\bbukan\\s+(cuma|cuman|hanya|sekadar|sekedar|cuman sekadar)\\b[^.!?\\n]{1,80}?\\b(tapi|tetapi|melainkan)\\b",
+      "flags": "i",
+      "scope": "any",
+      "severity": "warn",
+      "why": "'Bukan cuma X, tapi Y' = 'Not just X but Y' (panduan 6).",
+      "fix": "Pecah jadi dua kalimat, sebut Y langsung.",
+      "example_bad": "Bukan cuma teori, tapi praktik langsung.",
+      "example_good": "Isinya praktik. Lo pulang bawa asisten AI yang udah jalan."
+    },
+    {
+      "id": "satu_tempat_buat",
+      "pattern": "\\bsatu\\s+tempat\\s+(buat|untuk)\\b",
+      "flags": "i",
+      "scope": "any",
+      "severity": "block",
+      "why": "'Satu tempat buat semuanya' = 'One place for everything' (panduan 6).",
+      "fix": "Sebut tempatnya dan isinya: 'Semua catatan meeting masuk ke satu folder.'",
+      "example_bad": "Satu tempat buat semua kerjaan lo.",
+      "example_good": "Semua catatan meeting lo masuk ke satu folder."
+    },
+    {
+      "id": "yang_lo_butuhin",
+      "pattern": "^\\W*(semua\\s+)?yang\\s+(lo|lu|kamu|anda)\\s+(butuhin|butuhkan|perluin|perlukan)\\b",
+      "flags": "i",
+      "scope": "any",
+      "severity": {
+        "heading": "block",
+        "prose": "warn"
+      },
+      "why": "'Yang lo butuhin' = 'What you need' sebagai judul (panduan 6).",
+      "fix": "Judul yang nyebut isinya: 'Yang perlu disiapin sebelum kelas'.",
+      "example_bad": "Yang lo butuhin",
+      "example_good": "Yang perlu disiapin sebelum kelas"
+    },
+    {
+      "id": "heading_kenapa_x",
+      "pattern": "^kenapa\\s+\\S+(\\s+\\S+)?\\s*\\?\\s*$",
+      "flags": "i",
+      "scope": "heading",
+      "severity": "block",
+      "why": "'Kenapa X?' sebagai judul seksi = 'Why X?' (panduan 6).",
+      "fix": "Judul kalimat biasa: 'Kenapa ini penting sekarang'.",
+      "example_bad": "Kenapa Notula?",
+      "example_good": "Kenapa ini penting sekarang"
+    },
+    {
+      "id": "heading_fragment",
+      "pattern": "^[^,.!?\\n]{2,30},\\s+[^,.!?\\n]{2,30}\\.$",
+      "scope": "heading",
+      "severity": "warn",
+      "why": "Judul 'X, Y.' tanpa kata kerja itu fragmen iklan (panduan 6).",
+      "fix": "Kalimat utuh: 'Prototype-nya jadi hari itu juga.'",
+      "example_bad": "Prototype, hari yang sama.",
+      "example_good": "Prototype-nya jadi hari itu juga."
+    },
+    {
+      "id": "formal_keras",
+      "pattern": "\\b(merupakan|tersebut|bagi para|secara efektif|terpadu)\\b",
+      "flags": "i",
+      "scope": "any",
+      "requires": "casual",
+      "severity": "block",
+      "why": "Kata formal di samping gw/lo: dua register tabrakan (panduan 6). 'melakukan' sengaja masuk formal_ringan, karena tetap muncul di tulisan tangan orang.",
+      "fix": "itu, (buang), buat, dengan bener, satu.",
+      "example_bad": "Platform tersebut merupakan solusi terpadu bagi para profesional.",
+      "example_good": "Platform ini dipakai orang kantoran buat kerja bareng."
+    },
+    {
+      "id": "formal_ringan",
+      "pattern": "\\b(melakukan|dapat|adalah|berbasis|sedang|menggunakan|bagi)\\b",
+      "flags": "i",
+      "scope": "any",
+      "requires": "casual",
+      "severity": "warn",
+      "why": "Kata formal di samping gw/lo (panduan 1 dan 6). Kadang wajar ('dapet order'), judge yang mutusin.",
+      "fix": "bisa, itu, pakai, lagi, buat.",
+      "example_bad": "Gw sedang membangun komunitas bagi para profesional.",
+      "example_good": "Gw lagi bangun komunitas buat orang kantoran."
+    },
+    {
+      "id": "calque_nempel",
+      "pattern": "\\bnempel\\s+(di|ke)\\s+(bagian|kerjaan|pekerjaan|workflow|alur)\\b",
+      "flags": "i",
+      "scope": "any",
+      "severity": "block",
+      "why": "Kalke 'pinned to' atau 'attached to' (panduan 6).",
+      "fix": "'komentar langsung di bagian itu', 'kepake buat kerjaan lo'.",
+      "example_bad": "Komentar nempel di bagian yang dimaksud.",
+      "example_good": "Komentar langsung di bagian itu."
+    },
+    {
+      "id": "calque_dikerjain_ai",
+      "pattern": "\\b(dikerjain|dikerjakan|dibuat|disusun|ditulis)\\s+(oleh\\s+|sama\\s+|ama\\s+)?(AI|ChatGPT|Claude|robot)\\b",
+      "flags": "i",
+      "scope": "any",
+      "severity": "block",
+      "why": "Pasif terjemahan 'done by AI' (panduan 6).",
+      "fix": "Sebut pelakunya di depan: 'AI yang nyusun', 'biar AI yang beresin'.",
+      "example_bad": "Laporan mingguan dikerjain AI.",
+      "example_good": "AI yang nyusun laporan mingguan."
+    },
+    {
+      "id": "calque_di_mana",
+      "pattern": "\\w\\s+di\\s+mana\\s+(?!aja\\b|pun\\b|lagi\\b)[^?\\n]*$",
+      "flags": "i",
+      "scope": "prose",
+      "severity": "warn",
+      "why": "'di mana' sebagai kata sambung = kalke 'where' (panduan 6).",
+      "fix": "Pecah jadi kalimat baru, atau pakai 'yang'.",
+      "example_bad": "platform di mana pengguna membayar pakai poin",
+      "example_good": "satu platform loyalitas. Pengguna bayar pakai poin."
+    },
+    {
+      "id": "label_colon",
+      "pattern": "^\\W{0,3}(hasilnya|intinya|bonusnya|kesimpulannya|faktanya|masalahnya|solusinya|kuncinya|rahasianya|singkatnya|plusnya)\\s*\\**\\s*:",
+      "flags": "i",
+      "scope": "prose",
+      "severity": "block",
+      "why": "Label 'Hasilnya:' di tengah prose kebaca kayak slide (panduan 6).",
+      "fix": "Jadiin kalimat: 'Jadinya satu file...'.",
+      "example_bad": "Hasilnya: satu file rapi.",
+      "example_good": "Jadinya satu file yang rapi."
+    },
+    {
+      "id": "imperatif_formal",
+      "pattern": "(?:^|[.!?]\\s+)(jadilah|bayangkan|pelajari lebih lanjut|klik di sini|mulai sekarang juga)\\b",
+      "flags": "i",
+      "scope": "any",
+      "severity": "block",
+      "why": "Imperatif formal atau tombol template terjemahan (panduan 6 dan 8).",
+      "fix": "'Jadi orang yang...', 'Bayangin...', tombol kata kerja 2 sampai 4 kata: 'Lihat harganya'.",
+      "example_bad": "Bayangkan jika laporan lo jadi sendiri.",
+      "example_good": "Bayangin laporan lo jadi sendiri."
+    },
+    {
+      "id": "opener_klise",
+      "pattern": "\\b(di era digital|di era AI|di zaman sekarang ini|yuk simak|setuju gak\\?|setuju nggak\\?)",
+      "flags": "i",
+      "scope": "any",
+      "severity": "warn",
+      "why": "Pembuka atau penutup klise (panduan 3).",
+      "fix": "Buka dari masalah pembaca atau fakta konkret, tutup dengan satu langkah jelas.",
+      "example_bad": "Di era digital, semua orang pakai AI.",
+      "example_good": "Tiap hari ada tool AI baru. Yang kemarin aja belum sempet dicoba."
+    },
+    {
+      "id": "serapan_hindari",
+      "pattern": "\\b(leverage|opportunity|seamless|empower|unlock|journey|dedicated|end-to-end)\\b",
+      "flags": "i",
+      "scope": "any",
+      "severity": "warn",
+      "why": "Kata serapan yang kebaca terjemahan (panduan 5).",
+      "fix": "kesempatan, efek, (jelasin efeknya).",
+      "example_bad": "Unlock potensi lo.",
+      "example_good": "Pakai AI buat beresin laporan mingguan lo."
+    },
+    {
+      "id": "register_campur",
+      "pattern": "\\b(kamu|anda|kalian)\\b",
+      "flags": "i",
+      "scope": "any",
+      "requires": "casual",
+      "severity": "warn",
+      "why": "Satu halaman satu kata ganti: gw/lo jangan dicampur kamu atau Anda (panduan 1).",
+      "fix": "Pakai 'lo' semua.",
+      "example_bad": "Gw bantu kamu biar lo bisa.",
+      "example_good": "Gw bantu biar lo bisa."
+    },
+    {
+      "id": "lo_density",
+      "type": "metric",
+      "scope": "prose",
+      "requires": "casual",
+      "severity": "warn",
+      "min_sentences": 4,
+      "max_share": 0.6,
+      "max_per_sentence": 2,
+      "why": "'Lo' gak di tiap kalimat: paling banyak satu per kalimat, gak lebih dari separuh kalimat (panduan 1).",
+      "fix": "Buang 'lo' yang subjeknya udah jelas.",
+      "example_bad": "Lo buka file. Lo baca. Lo tulis. Lo kirim.",
+      "example_good": "Buka file-nya, baca, tulis, terus kirim."
+    }
+  ]
+}

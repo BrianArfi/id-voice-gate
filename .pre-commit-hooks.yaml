@@ -1,0 +1,27 @@
+# Use from another repo's .pre-commit-config.yaml:
+#
+#   - repo: https://github.com/BrianArfi/id-voice-gate
+#     rev: v1.0.0
+#     hooks:
+#       - id: idgate-lint          # fast, offline, every commit
+#       - id: idgate-site          # lint-only scan of locale files and pages
+#
+# Both are lint only, so a commit never waits on a model. Run the judge in CI or
+# before you publish (see docs/integrations.md).
+- id: idgate-lint
+  name: id-voice-gate (lint, Indonesian copy)
+  description: Block translated-sounding Indonesian in markdown and text files.
+  entry: idgate sweep --lint-only --dir . --glob
+  args: ["*.md"]
+  language: python
+  pass_filenames: false
+  always_run: false
+  files: \.(md|txt)$
+
+- id: idgate-site
+  name: id-voice-gate (site copy, lint only)
+  description: Lint every Indonesian string in JSON locales, HTML, markdown and TS/TSX.
+  entry: idgate site --lint-only --include-ts
+  language: python
+  pass_filenames: true
+  files: \.(json|html?|md|txt|tsx?|jsx?)$

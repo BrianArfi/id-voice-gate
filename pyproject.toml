@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "id-voice-gate"
+version = "1.0.0"
+description = "Catch Indonesian text that reads like a translation, before it ships. Lint plus an LLM judge, with a safe auto-rewrite."
+readme = "README.md"
+license = {text = "Apache-2.0"}
+authors = [{name = "Brian Arfi Faridhi"}]
+requires-python = ">=3.10"
+dependencies = []
+keywords = ["indonesian", "bahasa-indonesia", "linter", "ai-writing", "claude-code", "llm", "localization"]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Natural Language :: Indonesian",
+    "Topic :: Text Processing :: Linguistic",
+    "Environment :: Console",
+]
+
+[project.urls]
+Homepage = "https://github.com/BrianArfi/id-voice-gate"
+Changelog = "https://github.com/BrianArfi/id-voice-gate/blob/main/CHANGELOG.md"
+
+[project.scripts]
+idgate = "idgate.cli:main"
+
+[tool.setuptools]
+packages = ["idgate"]
+
+[tool.setuptools.package-data]
+idgate = ["rules.json", "guides/*.md"]

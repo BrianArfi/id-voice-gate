@@ -1,0 +1,38 @@
+# Copy to .github/workflows/id-voice-gate.yml in your repo.
+#
+# Lint only by default: free, offline, and it fails the build on a `block` rule.
+# Add an ANTHROPIC_API_KEY repository secret to also run the judge on changed copy.
+name: id-voice-gate
+
+on:
+  pull_request:
+    paths: ["**/*.md", "**/locales/**", "**/*.html"]
+
+jobs:
+  indonesian-copy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install git+https://github.com/BrianArfi/id-voice-gate@v1.0.0
+
+      # 1. Lint: every Indonesian string in the paths below. No model, no secret.
+      - name: Lint Indonesian copy
+        run: idgate site --lint-only content locales public
+
+      # 2. Judge: only runs when the secret exists. Exit 2 (judge unavailable) fails the job too.
+      - name: Judge Indonesian copy
+        if: ${{ env.ANTHROPIC_API_KEY != '' }}
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          IDGATE_JUDGE: anthropic-api
+        run: idgate site content locales public --workers 4 --report idgate-report.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: idgate-report
+          path: idgate-report.json
+          if-no-files-found: ignore

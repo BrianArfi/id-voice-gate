@@ -1,0 +1,10 @@
+# Cache, logs and the mode file hold draft text.
+.idgate/
+
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.venv/
+.DS_Store

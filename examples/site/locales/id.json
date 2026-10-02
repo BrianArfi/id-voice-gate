@@ -1,0 +1,19 @@
+{
+  "hero": {
+    "title": "Kenalan sama Notula",
+    "subtitle": "Satu tempat buat semua catatan meeting lo.",
+    "cta": "Pelajari lebih lanjut"
+  },
+  "steps": {
+    "title": "Cara pakainya",
+    "items": [
+      "Rekam meeting-nya kayak biasa.",
+      "Notulen dan daftar tugas dikerjain AI.",
+      "Tiga langkah, udah."
+    ]
+  },
+  "pricing": {
+    "title": "Harga",
+    "note": "Gratis buat {{seats}} orang pertama di tim lo."
+  }
+}
