@@ -1,0 +1,8 @@
+[
+ {
+  "cmd": "idgate site examples/site --lint-only --include-ts",
+  "out": "BLOCK  examples/site/locales/id.json:3  [kenalan_sama]  hero.title\n       \"Kenalan sama Notula\"\n       hit: \"Kenalan sama\". Langsung sebut isinya: 'Ini Notula, aplikasi notulen buat tim kecil.'\nBLOCK  examples/site/locales/id.json:4  [satu_tempat_buat]  hero.subtitle\n       \"Satu tempat buat semua catatan meeting lo.\"\n       hit: \"Satu tempat buat\". Sebut tempatnya dan isinya: 'Semua catatan meeting masuk ke satu folder.'\nBLOCK  examples/site/locales/id.json:5  [imperatif_formal]  hero.cta\n       \"Pelajari lebih lanjut\"\n       hit: \"Pelajari lebih lanjut\". 'Jadi orang yang...', 'Bayangin...', tombol kata kerja 2 sampai 4 kata: 'Lihat harganya'.\nBLOCK  examples/site/locales/id.json:11  [calque_dikerjain_ai]  steps.items.1\n       \"Notulen dan daftar tugas dikerjain AI.\"\n       hit: \"dikerjain AI\". Sebut pelakunya di depan: 'AI yang nyusun', 'biar AI yang beresin'.\nBLOCK  examples/site/locales/id.json:12  [punch_x_udah]  steps.items.2\n       \"Tiga langkah, udah.\"\n       hit: \"Tiga langkah, udah.\". Kalimat utuh: 'Cuma tiga langkah.' atau 'Tiga langkah, terus jalan sendiri.'\nBLOCK  examples/site/src/Pricing.tsx:5  [punch_gak_ribet]  title\n       \"Gak ribet.\"\n       hit: \"Gak ribet.\". Sebut yang bikin gampang: 'Gak perlu install apa-apa.'\nBLOCK  examples/site/src/Pricing.tsx:6  [imperatif_formal]  label\n       \"Mulai sekarang juga\"\n       hit: \"Mulai sekarang juga\". 'Jadi orang yang...', 'Bayangin...', tombol kata kerja 2 sampai 4 kata: 'Lihat harganya'.\n[idgate] 17 Indonesian strings checked: 7 block, 1 warn (lint only)\nexit 1",
+  "typed": true,
+  "hold": 4500
+ }
+]

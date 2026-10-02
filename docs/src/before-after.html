@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>id-voice-gate before/after (animated)</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  /* Rendered to docs/before-after.gif by render_gifs.py (record_html.py, 10 s, plays once, GIF loops).
+     Every line is a rule's own example_bad / example_good from idgate/rules.json. Illustration. */
+  :root { --paper:#F1F3EE; --field:#0D453E; --ink:#072B27; --signal:#C8F751; --line:#D5DBD0; --muted:#5E716C; --red:#C2412D;
+          --sans:"Inter","Segoe UI",sans-serif; --head:"Archivo","Segoe UI",sans-serif; --mono:"JetBrains Mono",Consolas,monospace; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 700px; background: var(--paper); color: var(--ink); font-family: var(--sans); overflow: hidden; }
+  .stage { padding: 40px 52px; }
+  .kicker { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--field); display: flex; gap: 10px; align-items: center; }
+  .kicker i { width: 12px; height: 12px; background: var(--signal); border: 3px solid var(--ink); border-radius: 3px; display: inline-block; }
+  h1 { font-family: var(--head); font-weight: 900; font-size: 44px; letter-spacing: -0.02em; margin-top: 8px; line-height: 1.05; }
+  h1 em { font-style: normal; background: linear-gradient(transparent 60%, var(--signal) 60%, var(--signal) 92%, transparent 92%); padding: 0 4px; }
+
+  .card { margin-top: 26px; background: #fff; border: 3px solid var(--ink); border-radius: 16px; box-shadow: 6px 6px 0 var(--ink); overflow: hidden; }
+  .cols { display: flex; padding: 12px 26px; border-bottom: 2px solid var(--line); font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--muted); }
+  .cols .r { width: 250px; }
+  .cols .state { position: relative; }
+  .cols .state b { position: absolute; left: 0; top: 0; white-space: nowrap; }
+  .cols .state .a { color: var(--field); }
+  .row { display: flex; align-items: center; padding: 0 26px; height: 112px; border-bottom: 2px solid var(--line); }
+  .row:last-child { border-bottom: 0; }
+  .rule { width: 250px; flex-shrink: 0; }
+  .rule span { font-family: var(--mono); font-size: 15px; font-weight: 700; background: var(--ink); color: var(--signal); padding: 6px 10px; border-radius: 7px; white-space: nowrap; }
+  .cell { position: relative; flex: 1; height: 100%; }
+  .layer { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+  .id { font-size: 26px; font-weight: 500; line-height: 1.2; }
+  .en { font-family: var(--mono); font-size: 16px; color: var(--muted); }
+  .bad .id u { text-decoration: none; background: linear-gradient(var(--red), var(--red)) no-repeat left 100%; background-size: 0% 4px; padding-bottom: 3px; }
+  .good { background: #fff; clip-path: inset(0 100% 0 0); }
+  .good .id { color: var(--ink); }
+  .good .id b { font-weight: 600; background: rgba(200,247,81,.55); border-radius: 4px; padding: 0 3px; margin: 0 -3px; }
+  .wipe { position: absolute; top: 14px; bottom: 14px; width: 6px; left: 0; background: var(--signal); border-radius: 3px; opacity: 0; }
+
+  @keyframes draw { to { background-size: 100% 4px; } }
+  @keyframes reveal { to { clip-path: inset(0 0 0 0); } }
+  @keyframes sweep { 0% { left: 0; opacity: 1; } 95% { opacity: 1; } 100% { left: 100%; opacity: 0; } }
+  @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeout { to { opacity: 0; } }
+  @keyframes unreveal { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 100% 0 0); } }
+
+  .row { animation: fadein .4s ease-out both; }
+  .r1 { animation-delay: .2s; } .r2 { animation-delay: .45s; } .r3 { animation-delay: .7s; } .r4 { animation-delay: .95s; }
+  .bad .id u { animation: draw .5s ease-out both; }
+  .r1 .bad u { animation-delay: 1.4s; } .r2 .bad u { animation-delay: 1.8s; } .r3 .bad u { animation-delay: 2.2s; } .r4 .bad u { animation-delay: 2.6s; }
+  .good { animation: reveal .7s ease-in-out both; }
+  .card { animation: fadeout .5s ease-in 9.4s forwards; }
+  .wipe { animation: sweep .7s ease-in-out forwards; }
+  .r1 .good, .r1 .wipe { animation-delay: 3.6s; } .r2 .good, .r2 .wipe { animation-delay: 4.3s; }
+  .r3 .good, .r3 .wipe { animation-delay: 5.0s; } .r4 .good, .r4 .wipe { animation-delay: 5.7s; }
+  .cols .b { animation: fadeout .3s ease-out 3.4s forwards; }
+  .cols .a { animation: fadein .3s ease-out 3.6s both; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="kicker"><i></i>id-voice-gate, before and after</div>
+  <h1>Same point. <em>Reads like a person wrote it.</em></h1>
+  <div class="card">
+    <div class="cols"><span class="r">rule that caught it</span><span class="state"><b class="b">BEFORE: what the AI wrote</b><b class="a">AFTER: the fix the rule ships with</b></span></div>
+    <div class="row r1">
+      <div class="rule"><span>calque_dikerjain_ai</span></div>
+      <div class="cell">
+        <div class="layer bad"><div class="id">Laporan mingguan <u>dikerjain AI.</u></div><div class="en">"Weekly report, done by AI."</div></div>
+        <div class="layer good"><div class="id"><b>AI yang nyusun</b> laporan mingguan.</div><div class="en">"AI drafts the weekly report."</div></div>
+        <div class="wipe"></div>
+      </div>
+    </div>
+    <div class="row r2">
+      <div class="rule"><span>punch_x_udah</span></div>
+      <div class="cell">
+        <div class="layer bad"><div class="id"><u>Tiga langkah, udah.</u></div><div class="en">"Three steps, done."</div></div>
+        <div class="layer good"><div class="id"><b>Cuma</b> tiga langkah.</div><div class="en">"Just three steps."</div></div>
+        <div class="wipe"></div>
+      </div>
+    </div>
+    <div class="row r3">
+      <div class="rule"><span>kenalan_sama</span></div>
+      <div class="cell">
+        <div class="layer bad"><div class="id"><u>Kenalan sama</u> Notula</div><div class="en">"Meet Notula"</div></div>
+        <div class="layer good"><div class="id"><b>Begini cara kerja</b> Notula</div><div class="en">"Here is how Notula works"</div></div>
+        <div class="wipe"></div>
+      </div>
+    </div>
+    <div class="row r4">
+      <div class="rule"><span>imperatif_formal</span></div>
+      <div class="cell">
+        <div class="layer bad"><div class="id"><u>Bayangkan</u> jika laporan lo jadi sendiri.</div><div class="en">"Imagine if your report wrote itself." (stiff ad template)</div></div>
+        <div class="layer good"><div class="id"><b>Bayangin</b> laporan lo jadi sendiri.</div><div class="en">"Picture your report writing itself." (said like a friend)</div></div>
+        <div class="wipe"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

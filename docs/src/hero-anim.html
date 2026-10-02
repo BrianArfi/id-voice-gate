@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>id-voice-gate hero (animated)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Shared visual system with voiceprint and gdoc-surgical: paper, field, ink, signal. */
+  :root {
+    --paper: #F1F3EE;
+    --field: #0D453E;
+    --ink: #072B27;
+    --signal: #C8F751;
+    --line: #D5DBD0;
+    --muted: #5E716C;
+    --red: #C2412D;
+    --sans: "Inter", "Segoe UI", system-ui, sans-serif;
+    --head: "Archivo", "Segoe UI", system-ui, sans-serif;
+    --mono: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1600px; height: 800px; background: var(--paper); color: var(--ink); font-family: var(--sans); overflow: hidden; }
+  .stage { position: relative; width: 1600px; height: 800px; padding: 60px 72px; }
+
+  .kicker { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--field); display: flex; align-items: center; gap: 12px; }
+  .kicker .dot { width: 14px; height: 14px; background: var(--signal); border: 3px solid var(--ink); border-radius: 3px; display: inline-block; }
+  h1 { font-family: var(--head); font-weight: 900; font-size: 64px; line-height: 1.02; letter-spacing: -0.025em; margin-top: 14px; color: var(--ink); }
+  h1 em { font-style: normal; background: linear-gradient(transparent 62%, var(--signal) 62%, var(--signal) 92%, transparent 92%); padding: 0 4px; }
+  .note { margin-top: 12px; font-size: 22px; line-height: 1.4; color: var(--muted); }
+  .note b { color: var(--ink); }
+
+  .row { position: absolute; left: 72px; right: 72px; top: 300px; display: flex; gap: 0; align-items: stretch; }
+
+  /* Left: the AI draft, flagged */
+  .draft { width: 760px; display: flex; flex-direction: column; background: #fff; border: 2px solid var(--ink); border-radius: 18px; box-shadow: 10px 10px 0 var(--field); position: relative; }
+  .head { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1.5px solid var(--line); font-size: 18px; color: var(--muted); }
+  .head b { color: var(--ink); font-weight: 600; }
+  .tag { font-family: var(--mono); font-size: 14px; font-weight: 600; background: var(--paper); color: var(--field); border: 1.5px solid var(--field); border-radius: 999px; padding: 3px 12px; }
+  .msg { padding: 24px 28px 10px; font-size: 23px; line-height: 1.45; color: #24302d; }
+  .msg p { position: relative; margin-bottom: 4px; }
+  .msg p.gap { margin-top: 18px; }
+  .hit { text-decoration: underline; text-decoration-color: var(--signal); text-decoration-thickness: 6px; text-underline-offset: 6px; text-decoration-skip-ink: none; }
+  .flag { position: absolute; left: 0; top: calc(100% + 4px); font-family: var(--mono); font-size: 14px; font-weight: 700; line-height: 1; white-space: nowrap; background: var(--ink); color: var(--signal); padding: 7px 11px 7px 9px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; z-index: 2; }
+  .flag::before { content: ""; width: 8px; height: 8px; background: var(--signal); border-radius: 2px; transform: rotate(45deg); }
+  .msg p.flagged { margin-bottom: 44px; }
+  .exit { margin-top: auto; display: flex; gap: 14px; align-items: center; padding: 14px 24px; border-top: 1.5px solid var(--line); font-family: var(--mono); font-size: 16px; color: var(--muted); background: #FAFBF8; border-radius: 0 0 16px 16px; }
+  .exit .fail { color: #fff; background: var(--red); padding: 3px 10px; border-radius: 6px; font-weight: 700; }
+  .exit .pass { color: var(--ink); background: var(--signal); padding: 3px 10px; border-radius: 6px; font-weight: 700; }
+
+  /* Middle arrow */
+  .arrow { width: 96px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+  .arrow svg { width: 64px; height: 40px; }
+  .arrow span { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--field); text-align: center; line-height: 1.3; }
+
+  /* Right: the natural rewrite */
+  .fixed { flex: 1; display: flex; flex-direction: column; background: var(--field); color: var(--paper); border-radius: 18px; border: 2px solid var(--ink); }
+  .fixed .head { color: #A9C2BC; border-bottom-color: rgba(241,243,238,.16); }
+  .fixed .head b { color: #fff; }
+  .fixed .tag { background: var(--signal); color: var(--ink); border-color: var(--signal); }
+  .fixed .msg { color: #F1F3EE; }
+  .fixed .msg .new { background: rgba(200,247,81,.16); border-radius: 4px; padding: 0 4px; margin: 0 -4px; color: #fff; }
+  .fixed .exit { background: rgba(0,0,0,.14); color: #A9C2BC; border-top-color: rgba(241,243,238,.16); }
+  .guard { padding: 4px 28px 18px; font-family: var(--mono); font-size: 15px; color: #A9C2BC; line-height: 1.5; }
+  .guard b { color: var(--signal); font-weight: 700; }
+</style>
+
+<style>
+  /* Animated version of hero.html for docs/hero.gif (rendered by record_html.py, 10 s, plays once, GIF loops). */
+  @keyframes up { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pop { 0% { opacity: 0; transform: scale(.6); } 70% { opacity: 1; transform: scale(1.06); } 100% { opacity: 1; transform: scale(1); } }
+  @keyframes draw { from { background-size: 0% 6px; } to { background-size: 100% 6px; } }
+  @keyframes slidein { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
+  @keyframes glow { from { background: rgba(200,247,81,0); } to { background: rgba(200,247,81,.16); } }
+  @keyframes out { to { opacity: 0; } }
+  .hit { text-decoration: none; background: linear-gradient(var(--signal), var(--signal)) no-repeat left 100%; background-size: 0% 6px; padding-bottom: 6px;
+         animation: draw .6s ease-out both; }
+  .msg p:nth-child(1) .hit { animation-delay: 1.4s; }
+  .msg p:nth-child(4) .hit { animation-delay: 2.3s; }
+  .flag { transform-origin: left center; animation: pop .4s ease-out both; }
+  .msg p:nth-child(1) .flag { animation-delay: 1.9s; }
+  .msg p:nth-child(4) .flag { animation-delay: 2.8s; }
+  .draft { animation: up .6s ease-out .3s both, out .4s ease-in 9.5s forwards; }
+  .draft .exit { animation: fadein .4s ease-out 3.4s both; }
+  .arrow { animation: fadein .4s ease-out 4.1s both, out .4s ease-in 9.5s forwards; }
+  .fixed { animation: slidein .6s ease-out 4.5s both, out .4s ease-in 9.5s forwards; }
+  .fixed .msg .new { animation: glow .5s ease-out both; }
+  .fixed .msg p:nth-child(1) .new { animation-delay: 5.3s; }
+  .fixed .msg p:nth-child(4) .new { animation-delay: 5.8s; }
+  .guard { animation: fadein .5s ease-out 6.4s both; }
+  .fixed .exit { animation: fadein .4s ease-out 7.0s both; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="kicker"><span class="dot"></span>id-voice-gate</div>
+  <h1>AI wrote it in English first. <em>Readers can tell.</em></h1>
+  <p class="note">Lint plus a native-ear judge for Indonesian copy. <b>Fails the translated lines, rewrites them safely, holds what still fails.</b></p>
+
+  <div class="row">
+    <div class="draft">
+      <div class="head"><span>Draft post, <b>bahasa Indonesia</b></span><span class="tag">written by your AI</span></div>
+      <div class="msg">
+        <p class="flagged">Notulen, daftar tugas, dan laporan mingguan, <span class="hit">dikerjain AI.</span><span class="flag">calque: "done by AI"</span></p>
+        <p>Lo tinggal review.</p>
+        <p class="gap">Rekam meeting, upload, kirim.</p>
+        <p class="flagged"><span class="hit">Tiga langkah, udah.</span><span class="flag">ad punchline: "Three steps, done"</span></p>
+      </div>
+      <div class="exit"><span class="fail">FAIL</span><span>2 lint blocks, judge: natural=false, score 2</span></div>
+    </div>
+
+    <div class="arrow">
+      <svg viewBox="0 0 64 40" fill="none"><path d="M4 20h50M40 6l14 14-14 14" stroke="#072B27" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>idgate<br>gate</span>
+    </div>
+
+    <div class="fixed">
+      <div class="head"><span>What gets published</span><span class="tag">natural</span></div>
+      <div class="msg">
+        <p><span class="new">AI yang nyusun</span> notulen, daftar tugas, dan laporan mingguan.</p>
+        <p>Lo tinggal review.</p>
+        <p class="gap">Rekam meeting, upload, kirim.</p>
+        <p><span class="new">Cuma tiga langkah.</span></p>
+      </div>
+      <div class="guard">Same facts, numbers, names, links and negations,<br>or the rewrite is <b>rejected</b>. Judge down: <b>held</b>.</div>
+      <div class="exit"><span class="pass">PASS</span><span>1 rewrite round, real Claude judge</span></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
